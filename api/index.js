@@ -81,7 +81,38 @@ app.post('/v1', async (req,res)=>{
   
    }
 })
+app.post('/api',async(req,res)=>{
+  try{
+    const message = req.body.message
+    const prompt =  "act as a movie reccomendation system and suggest some movies for the query : " +
+    (message || "") +
+    ". only give me five movies, comma separated like the example given ahead. Example : Gadar , Border , Sholay , Don , 12th fail. Dont include anything else in the response except movies name";
+    const response = await anthropic.messages.create({
+      model: 'claude-3-haiku-20240307',
+      max_tokens:2000,
+      messages: [
+        { 
+          role: 'user',
+           content:[
+            {
+                type:'text',
+                text:prompt
+            }
+          ]
+        }
+      ]
+  })
+  if (response.content) {
+      console.log(response.content[0].text)
+    res.send(response.content[0].text);
+  } else {
+      res.status(500).send('Failed to generate response! kyunki fer kand hogya');
+    }
 
+  }catch(error){
+    res.send('kand hogya'+error)
+  }
+})
 app.listen(port, () => {
     console.log(`Server running on  http://localhost:${port}`);
   });
